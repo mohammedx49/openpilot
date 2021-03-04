@@ -46,6 +46,27 @@ class CarController():
 
       can_sends.append(gmcan.create_steering_control(self.packer_pt, CanBus.POWERTRAIN, apply_steer, idx, lkas_enabled))
 
+    # GAS/BRAKE
+    # no output if not enabled, but keep sending keepalive messages
+    # treat pedals as one
+    final_pedal = actuators.gas - actuators.brake
+
+    if not enabled:
+      # Stock ECU sends max regen when not enabled.
+      apply_gas = P.MAX_ACC_REGEN
+      apply_brake = 0
+    else:
+      apply_gas = int(round(interp(final_pedal, P.GAS_LOOKUP_BP, P.GAS_LOOKUP_V)))
+      apply_brake = int(round(interp(final_pedal, P.BRAKE_LOOKUP_BP, P.BRAKE_LOOKUP_V)))
+
+    # Gas/regen and brakes - all at 25Hz
+    if (frame % 4) == 0:
+      idx = (frame // 4) % 4
+
+      at_full_stop = enabled and CS.out.standstill
+      near_stop = enabled and (CS.out.vEgo < P.NEAR_STOP_BRAKE_PHASE)
+      can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, CanBus.CHASSIS, apply_brake, idx, near_stop, at_full_stop))
+      can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, apply_gas, idx, enabled, at_full_stop))
 
     # Send dashboard UI commands (ACC status), 25hz
     if (frame % 4) == 0:
