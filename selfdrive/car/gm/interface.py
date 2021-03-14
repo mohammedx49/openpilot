@@ -119,9 +119,9 @@ class CarInterface(CarInterfaceBase):
       ret.centerToFront = ret.wheelbase * 0.4  # wild guess
       #PID tunning not to prevent oversteer
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[10., 41.0], [10., 41.0]]
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.23, 0.34], [0.02, 0.03]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.03, 0.14], [0.00, 0.01]]
       ret.lateralTuning.pid.kdBP = [0.]
-      ret.lateralTuning.pid.kdV = [0.4]  #corolla from shane fork : 0.725
+      ret.lateralTuning.pid.kdV = [0.2]  #corolla from shane fork : 0.725
       ret.lateralTuning.pid.kf = 0.000045
       tire_stiffness_factor = 0.5
 
